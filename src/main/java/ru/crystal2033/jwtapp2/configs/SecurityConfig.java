@@ -19,6 +19,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ru.crystal2033.jwtapp2.dto.JwtRequest;
 import ru.crystal2033.jwtapp2.services.UserService;
 
 @EnableWebSecurity
@@ -26,7 +28,7 @@ import ru.crystal2033.jwtapp2.services.UserService;
 @Configuration
 public class SecurityConfig {
     private final UserService userService;
-
+    private final JwtRequestFilter jwtRequestFilter;
 
 
     @Bean
@@ -35,20 +37,24 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
+                        //looking inside SecurityContext
                         auth -> auth.requestMatchers("/secured").authenticated()
                                 .requestMatchers("/info").authenticated()
                                 .requestMatchers("/admin").hasRole("ADMIN")
                                 .anyRequest().permitAll()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        //insert our filter before UsernamePasswordAuthenticationFilter
         return httpSecurity.build();
 
 
     }
 
-    public SecurityConfig(UserService userService) {
+    public SecurityConfig(UserService userService, JwtRequestFilter jwtRequestFilter) {
         this.userService = userService;
+        this.jwtRequestFilter = jwtRequestFilter;
     }
 
     @Bean
