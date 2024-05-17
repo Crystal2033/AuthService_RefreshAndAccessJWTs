@@ -3,7 +3,7 @@ server:
   servlet:
     context-path: /demo
 jwt:
-  secret: 123123123123213123123123123123123
+  secret: 12jhbiduhasiud8921dkjsadn912hjdskmna021htg2e8s09adjq
   lifetime: 10m
 spring:
   datasource:

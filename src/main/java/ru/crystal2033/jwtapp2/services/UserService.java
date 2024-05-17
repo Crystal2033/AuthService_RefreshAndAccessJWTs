@@ -33,7 +33,7 @@ public class UserService implements UserDetailsService {
     }
 
     public Optional<User> findByUsername(String name) {
-        return userRepository.findUserByName(name);
+        return userRepository.findUserByUsername(name);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class UserService implements UserDetailsService {
                 String.format("User '%s' not found ", username)
         ));
         return new org.springframework.security.core.userdetails.User(
-                user.getName(),
+                user.getUsername(),
                 user.getPassword(),
                 user.getRoles()
                         .stream()
