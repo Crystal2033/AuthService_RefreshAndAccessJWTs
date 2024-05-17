@@ -20,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ru.crystal2033.jwtapp2.dto.JwtRequest;
 import ru.crystal2033.jwtapp2.services.UserService;
 
 @EnableWebSecurity
@@ -29,6 +28,7 @@ import ru.crystal2033.jwtapp2.services.UserService;
 public class SecurityConfig {
     private final UserService userService;
     private final JwtRequestFilter jwtRequestFilter;
+    private final PasswordEncoderBean passwordEncoderBean;
 
 
     @Bean
@@ -52,23 +52,20 @@ public class SecurityConfig {
 
     }
 
-    public SecurityConfig(UserService userService, JwtRequestFilter jwtRequestFilter) {
+    public SecurityConfig(UserService userService, JwtRequestFilter jwtRequestFilter, PasswordEncoderBean passwordEncoderBean) {
         this.userService = userService;
         this.jwtRequestFilter = jwtRequestFilter;
+        this.passwordEncoderBean = passwordEncoderBean;
     }
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoderBean.passwordEncoder());
         daoAuthenticationProvider.setUserDetailsService(userService);
         return daoAuthenticationProvider;
     }
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {

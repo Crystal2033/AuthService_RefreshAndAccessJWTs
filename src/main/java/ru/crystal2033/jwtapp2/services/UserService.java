@@ -10,7 +10,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.crystal2033.jwtapp2.dto.RegistrationUserDto;
 import ru.crystal2033.jwtapp2.entities.User;
 import ru.crystal2033.jwtapp2.repositories.RoleRepository;
 import ru.crystal2033.jwtapp2.repositories.UserRepository;
@@ -23,13 +25,15 @@ import java.util.stream.Collectors;
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
+    private final RoleService roleService;
     //Its better to inject RoleService instead of Repository directly
-    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, RoleService roleService) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.roleService = roleService;
     }
 
     public Optional<User> findByUsername(String name) {
@@ -52,8 +56,13 @@ public class UserService implements UserDetailsService {
         );
     }
 
-    public void createNewUser(User user){
-        user.setRoles(List.of(roleRepository.findRoleByName("ROLE_USER").get()));
+    public User createNewUser(RegistrationUserDto registrationUserDto) {
+        User user = new User();
+        user.setEmail(registrationUserDto.getEmail());
+        user.setUsername(registrationUserDto.getUsername());
+        user.setPassword(passwordEncoder.encode(registrationUserDto.getPassword()));
+        user.setRoles(List.of(roleService.getUserRole()));
         userRepository.save(user);
+        return user;
     }
 }
