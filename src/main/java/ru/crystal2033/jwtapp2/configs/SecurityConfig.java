@@ -27,6 +27,8 @@ import ru.crystal2033.jwtapp2.services.UserService;
 public class SecurityConfig {
     private final UserService userService;
 
+
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
