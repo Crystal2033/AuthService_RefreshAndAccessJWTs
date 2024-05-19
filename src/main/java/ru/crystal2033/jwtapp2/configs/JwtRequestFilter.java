@@ -6,8 +6,6 @@
 package ru.crystal2033.jwtapp2.configs;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.SignatureException;
-import jakarta.persistence.Column;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +42,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if(authHeader != null && authHeader.startsWith("Bearer ")){
             jwt = authHeader.substring(PREFIX_AUTH.length());
             try{
-                username = jwtTokenUtils.getUsername(jwt);
+                username = jwtTokenUtils.getUsernameFromAccessToken(jwt);
             }
             catch(ExpiredJwtException exc){
                 log.debug("Token`s lifetime expired");

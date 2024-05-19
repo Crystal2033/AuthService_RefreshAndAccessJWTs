@@ -10,10 +10,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import ru.crystal2033.jwtapp2.dto.JwtRequest;
+import ru.crystal2033.jwtapp2.dto.RefreshJwtRequest;
 import ru.crystal2033.jwtapp2.dto.RegistrationUserDto;
 import ru.crystal2033.jwtapp2.services.AuthService;
 
-@RestController
+@RestController("/privacy")
 public class AuthController {
     private final AuthService authService;
 
@@ -22,15 +23,19 @@ public class AuthController {
     }
 
 
-    //MAKE WITH GLOBAL EXCEPTIONS
-    //MAKE LOGIC IN SERVICES
     @PostMapping("/auth")
     public ResponseEntity<?> createAuthToken(@RequestBody JwtRequest authRequest) {
-        return authService.createAuthToken(authRequest);
+        return authService.createAuthTokens(authRequest);
     }
 
     @PostMapping("/registration")
     public ResponseEntity<?> createNewUser(@RequestBody RegistrationUserDto registrationUserDto) {
         return authService.createNewUser(registrationUserDto);
+    }
+
+
+    @PostMapping("/token")
+    public ResponseEntity<?> getNewAccessAndRefreshToken(@RequestBody RefreshJwtRequest refreshJwtRequest){
+        return authService.updateAccessAndRefreshTokens(refreshJwtRequest);
     }
 }

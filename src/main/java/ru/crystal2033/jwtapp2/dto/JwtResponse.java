@@ -5,4 +5,4 @@
 
 package ru.crystal2033.jwtapp2.dto;
 
-public record JwtResponse(String token){}
+public record JwtResponse(String accessToken, String refreshToken){}

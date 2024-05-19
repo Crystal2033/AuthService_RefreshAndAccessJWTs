@@ -3,23 +3,23 @@ server:
   servlet:
     context-path: /demo
 jwt:
-  secret: 12jhbiduhasiud8921dkjsadn912hjdskmna021htg2e8s09adjq
-  lifetime: 10m
+  access-secret:  12jhbiduhasiud8921dkjsadn912hjdskmna021htg2e8s09adjq
+  access-lifetime: 10m
+  refresh-secret: jasdijd1id1hh1u294bfasjnf12ei9ujas0d9i2jd90j1290jash
+  refresh-lifetime: 30d
 spring:
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:./users;MODE=PostgreSQL
-    username: sa
-    password:
+    url: jdbc:postgresql://localhost:5432/auth_inv_server
+    username: postgres
+    password: qwerty12345
+    driver-class-name: org.postgresql.Driver
   jpa:
     show-sql: true
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
-  h2:
-    console:
-      enabled: true
-      settings:
-        web-allow-others: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        hbm2ddl:
+          auto: update
   main:
     allow-circular-references: true
+

@@ -26,11 +26,14 @@ public class User {
 
     private String email;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
             name = "users_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Collection<Role> roles;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private RefreshToken refreshToken;
 }
