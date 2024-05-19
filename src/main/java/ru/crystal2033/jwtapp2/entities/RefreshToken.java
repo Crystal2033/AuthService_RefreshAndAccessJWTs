@@ -16,7 +16,7 @@ import lombok.Data;
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
 
     private String refreshTokenName;
 
