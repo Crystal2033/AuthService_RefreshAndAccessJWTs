@@ -16,13 +16,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import ru.crystal2033.jwtapp2.dto.JwtRequest;
-import ru.crystal2033.jwtapp2.dto.JwtResponse;
-import ru.crystal2033.jwtapp2.dto.RefreshJwtRequest;
-import ru.crystal2033.jwtapp2.dto.RegistrationUserDto;
+import ru.crystal2033.jwtapp2.dto.*;
 import ru.crystal2033.jwtapp2.entities.RefreshToken;
 import ru.crystal2033.jwtapp2.entities.User;
-import ru.crystal2033.jwtapp2.entities.UserDto;
 import ru.crystal2033.jwtapp2.exceptions.AppError;
 import ru.crystal2033.jwtapp2.util.JwtTokenUtils;
 
@@ -47,8 +43,12 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
     }
 
+    public boolean isTokenValidByPublicKey(JwtAccessTokenRequest jwtAccessTokenRequest) {
+        return jwtTokenUtils.isTokenValidByPublicKey(jwtAccessTokenRequest.accessToken());
+    }
+
     @Autowired
-    public void setAuthService(AuthService authService){
+    public void setAuthService(AuthService authService) {
         this.authService = authService;
     }
 

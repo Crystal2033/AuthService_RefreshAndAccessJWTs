@@ -5,19 +5,17 @@
 
 package ru.crystal2033.jwtapp2.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
 
-@Entity(name="refresh_token")
+@Entity(name = "refresh_token")
 @Data
 public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(length = 4000)
     private String refreshTokenName;
 
 }

@@ -6,8 +6,6 @@
 package ru.crystal2033.jwtapp2.util;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,21 +13,26 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 @Component
 @Slf4j
 public class JwtTokenUtils {
-//    @Value("${jwt.access-secret}")
-    private final SecretKey accessSecret;
+    private final PrivateKey accessSecret;
+    private final PublicKey accessPublic;
 
-//    @Value("${jwt.refresh-secret}")
-    private final SecretKey refreshSecret;
+    private final PrivateKey refreshSecret;
+    private final PublicKey refreshPublic;
 
     @Value("${jwt.access-lifetime}")
     private Duration jwtAccessLifetime;
@@ -37,12 +40,31 @@ public class JwtTokenUtils {
     @Value("${jwt.refresh-lifetime}")
     private Duration jwtRefreshLifetime;
 
-    public JwtTokenUtils(
-            @Value("${jwt.access-secret}") String accessSecret,
-            @Value("${jwt.refresh-secret}") String refreshSecret
-    ) {
-        this.accessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(accessSecret));
-        this.refreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(refreshSecret));
+
+    public JwtTokenUtils() {
+        final KeysFromFileExtractor keysFromFileExtractor = new KeysFromFileExtractor();
+
+        try {
+
+            this.accessPublic = keysFromFileExtractor.getPublicKeyFromFile("D:\\Paul\\Programming\\Java\\JWTApp2\\jwtRS256AccessJWT.key.pub");
+            this.accessSecret = keysFromFileExtractor.getPrivateKeyFromFile("D:\\Paul\\Programming\\Java\\JWTApp2\\jwtRS256AccessJWT.key");
+
+            this.refreshPublic = keysFromFileExtractor.getPublicKeyFromFile("D:\\Paul\\Programming\\Java\\JWTApp2\\jwtRS256RefreshJWT.key.pub");
+            this.refreshSecret = keysFromFileExtractor.getPrivateKeyFromFile("D:\\Paul\\Programming\\Java\\JWTApp2\\jwtRS256RefreshJWT.key");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+//        try {
+//            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+//            keyPairGenerator.initialize(2048);
+//            this.keyPair = keyPairGenerator.generateKeyPair();
+//        } catch (NoSuchAlgorithmException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     //generate by user
@@ -63,6 +85,22 @@ public class JwtTokenUtils {
                 .compact();
     }
 
+    public boolean isTokenValidByPublicKey(String accessToken) {
+        try {
+            Jwts.parser().verifyWith(accessPublic).build().parseSignedClaims(accessToken).getPayload();
+            return true;
+        } catch (ExpiredJwtException expEx) {
+            log.error("Token expired", expEx);
+        } catch (UnsupportedJwtException unsEx) {
+            log.error("Unsupported jwt", unsEx);
+        } catch (MalformedJwtException mjEx) {
+            log.error("Malformed jwt", mjEx);
+        } catch (Exception e) {
+            log.error("invalid token", e);
+        }
+        return false;
+    }
+
     public String generateRefreshToken(UserDetails userDetails) {
         Date createdDate = new Date();
         Date expiredDate = new Date(createdDate.getTime() + jwtRefreshLifetime.toMillis());
@@ -75,15 +113,15 @@ public class JwtTokenUtils {
     }
 
     public boolean validateAccessToken(@NonNull String accessToken) {
-        return validateToken(accessToken, accessSecret);
+        return validateToken(accessToken, accessPublic);
     }
 
     public boolean validateRefreshToken(@NonNull String refreshToken) {
-        return validateToken(refreshToken, refreshSecret);
+        return validateToken(refreshToken, refreshPublic);
     }
 
     //Getting all essential data from JWT accessToken (payload, header, sign)
-    private Claims getAllClaimsFromAccessJWT(String token, SecretKey key) {
+    private Claims getAllClaimsFromJWT(String token, PublicKey key) {
         return Jwts.parser()
                 .verifyWith(key)
                 .build()
@@ -92,17 +130,17 @@ public class JwtTokenUtils {
     }
 
     public String getUsernameFromAccessToken(String token) {
-        return getAllClaimsFromAccessJWT(token, accessSecret).getSubject();
+        return getAllClaimsFromJWT(token, accessPublic).getSubject();
     }
 
     public String getUsernameFromRefreshToken(String token) {
-        return getAllClaimsFromAccessJWT(token, refreshSecret).getSubject();
+        return getAllClaimsFromJWT(token, refreshPublic).getSubject();
     }
 
-    private boolean validateToken(@NonNull String token, @NonNull SecretKey secret) {
+    private boolean validateToken(@NonNull String token, @NonNull PublicKey publicKey) {
         try {
             Jwts.parser()
-                    .verifyWith(secret)
+                    .verifyWith(publicKey)
                     .build()
                     .parseSignedClaims(token);
             return true;
@@ -119,21 +157,7 @@ public class JwtTokenUtils {
     }
 
     public List<String> getRoles(String token) {
-        return getAllClaimsFromAccessJWT(token, accessSecret).get("roles", List.class);
+        return getAllClaimsFromJWT(token, accessPublic).get("roles", List.class);
     }
 
-//    private SecretKey getSigningKey() {
-//        byte[] keyBytes = this.accessSecret.getBytes(StandardCharsets.UTF_8);
-//        return Keys.hmacShaKeyFor(keyBytes);
-//    }
-
-//Variaties for SecretKey generation
-//    private SecretKey getSecretSigningKey() {
-//        return Jwts.SIG.HS256.key().build();
-//    }
-//
-//    private SecretKey getSigningKeyFromMine() {
-//        byte[] keyBytes = Decoders.BASE64.decode(secret);
-//        return Keys.hmacShaKeyFor(keyBytes);
-//    }
 }

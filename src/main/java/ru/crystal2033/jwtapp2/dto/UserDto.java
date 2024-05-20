@@ -3,7 +3,7 @@
  * Date: 15.05.2024
  */
 
-package ru.crystal2033.jwtapp2.entities;
+package ru.crystal2033.jwtapp2.dto;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

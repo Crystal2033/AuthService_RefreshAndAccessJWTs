@@ -3,9 +3,7 @@ server:
   servlet:
     context-path: /demo
 jwt:
-  access-secret:  12jhbiduhasiud8921dkjsadn912hjdskmna021htg2e8s09adjq
   access-lifetime: 10m
-  refresh-secret: jasdijd1id1hh1u294bfasjnf12ei9ujas0d9i2jd90j1290jash
   refresh-lifetime: 30d
 spring:
   datasource:
