@@ -19,10 +19,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Duration;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Component
@@ -65,6 +62,11 @@ public class JwtTokenUtils {
 //        } catch (NoSuchAlgorithmException e) {
 //            throw new RuntimeException(e);
 //        }
+    }
+
+    public String getPublicAccessKey(){
+        byte[] publicKeyInBytes = this.accessPublic.getEncoded();
+        return Base64.getEncoder().encodeToString(publicKeyInBytes);
     }
 
     //generate by user
@@ -112,9 +114,6 @@ public class JwtTokenUtils {
                 .compact();
     }
 
-    public boolean validateAccessToken(@NonNull String accessToken) {
-        return validateToken(accessToken, accessPublic);
-    }
 
     public boolean validateRefreshToken(@NonNull String refreshToken) {
         return validateToken(refreshToken, refreshPublic);
